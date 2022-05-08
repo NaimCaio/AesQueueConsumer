@@ -44,9 +44,9 @@ namespace AWSQueueProject.Model.Repositorys
             table.Remove(item);
         }
 
-        public void Edit(T item)
+        public void Edit(T baseItem,T item)
         {
-            _context.Entry(item).State = EntityState.Modified;
+            _context.Entry(baseItem).CurrentValues.SetValues(item);
         }
 
         public void Dispose()

@@ -13,7 +13,7 @@ namespace AWSQueueProject.Model.Interfaces
         IQueryable<T> List();
         void Add(T item);
         void Remove(T item);
-        void Edit(T item);
+        void Edit(T baseItem, T item);
 
         void Save();
         T FirstOrDeafault(Expression<Func<T, bool>> clause);

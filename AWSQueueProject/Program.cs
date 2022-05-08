@@ -3,6 +3,7 @@ using AWSQueueProject.Model.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Configuration;
 
 namespace AWSQueueProject
 {
@@ -10,7 +11,11 @@ namespace AWSQueueProject
     {
         static void Main(string[] args)
         {
-            var sqsClient = new AmazonSQSClient(Amazon.RegionEndpoint.USEast1);
+            
+
+            string userKey = Environment.GetEnvironmentVariable("key");
+            string userSecret = Environment.GetEnvironmentVariable("secret");
+            var sqsClient = new AmazonSQSClient(userKey, userSecret,Amazon.RegionEndpoint.USEast1);
             var sqsService = new SQSQueueService();
             var queueUrl = sqsService.CreateOrConectQueue(sqsClient, "MySQS", "30");
             sqsService.ReceiveMessages(queueUrl, sqsClient);

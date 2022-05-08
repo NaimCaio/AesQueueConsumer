@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "AWSQueueProject": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "key": "AKIAYWVHNQKMCY5RSJ4K",
+        "secret": "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",
+        "MySqlConnectionString": "Server=localhost;Uid=root;DataBase=awsproject;pwd=admin123"
+      }
+    }
+  }
+}

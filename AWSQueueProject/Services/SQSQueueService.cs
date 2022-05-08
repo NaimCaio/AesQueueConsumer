@@ -20,12 +20,11 @@ namespace AWSQueueProject
         public SQSQueueService()
         {
             //Database connection
-            var connection = "Server=localhost;Uid=root;DataBase=awsproject;pwd=admin123";
+            var connection = Environment.GetEnvironmentVariable("MySqlConnectionString");
             var optionsBuilder = new DbContextOptionsBuilder<SQLContext>();
             optionsBuilder.UseMySql(connection, new MySqlServerVersion(new Version()));
             var _context = new SQLContext(optionsBuilder.Options);
             _filesRepository = new SqlRepository<File>(_context);
-
         }
         public  string CreateOrConectQueue( AmazonSQSClient sqsClient, string queueName, string timeout)
         {
@@ -73,13 +72,14 @@ namespace AWSQueueProject
                     {
                         UpdateDabase(obj);
                     }
-                    
+                    counter++;
+
                 }
                 else
                 {
                     Console.WriteLine("Erro ao acessar fila");
                 }
-                counter++;
+                
             }
         }
 
@@ -103,7 +103,7 @@ namespace AWSQueueProject
             var AWSfile = new File()
             {
                 filename = obj.Records[0].s3.Object.key,
-                filesize = long.Parse(obj.Records[0].s3.Object.size),
+                filesize = obj.Records[0].s3.Object.size,
                 lastmodified = DateTime.Parse(obj.Records[0].eventTime)
 
             };
@@ -130,7 +130,7 @@ namespace AWSQueueProject
                 {
                     try
                     {
-                        _filesRepository.Edit(AWSfile);
+                        _filesRepository.Edit(databaseFile, AWSfile);
                         _filesRepository.Save();
                     }
                     catch (Exception)
