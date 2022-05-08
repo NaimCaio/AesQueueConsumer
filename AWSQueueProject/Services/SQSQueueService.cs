@@ -22,7 +22,12 @@ namespace AWSQueueProject
             //Database connection
             var connection = Environment.GetEnvironmentVariable("MySqlConnectionString");
             var optionsBuilder = new DbContextOptionsBuilder<SQLContext>();
-            optionsBuilder.UseMySql(connection, new MySqlServerVersion(new Version()));
+            optionsBuilder.UseMySql(connection, ServerVersion.AutoDetect(connection),
+                options => options.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: System.TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null)
+                );
             var _context = new SQLContext(optionsBuilder.Options);
             _filesRepository = new SqlRepository<File>(_context);
         }
@@ -103,7 +108,7 @@ namespace AWSQueueProject
             var AWSfile = new File()
             {
                 filename = obj.Records[0].s3.Object.key,
-                filesize = long.Parse(obj.Records[0].s3.Object.size),
+                filesize = obj.Records[0].s3.Object.size !=null? long.Parse(obj.Records[0].s3.Object.size):0,
                 lastmodified = DateTime.Parse(obj.Records[0].eventTime)
 
             };

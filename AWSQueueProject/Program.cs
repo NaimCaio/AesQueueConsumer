@@ -15,9 +15,11 @@ namespace AWSQueueProject
 
             string userKey = Environment.GetEnvironmentVariable("key");
             string userSecret = Environment.GetEnvironmentVariable("secret");
+            string queueName = Environment.GetEnvironmentVariable("queuename");
+            string timeout = Environment.GetEnvironmentVariable("timeoutqueue");
             var sqsClient = new AmazonSQSClient(userKey, userSecret,Amazon.RegionEndpoint.USEast1);
             var sqsService = new SQSQueueService();
-            var queueUrl = sqsService.CreateOrConectQueue(sqsClient, "MySQS", "30");
+            var queueUrl = sqsService.CreateOrConectQueue(sqsClient, queueName, timeout);
             sqsService.ReceiveMessages(queueUrl, sqsClient);
         }
     }
