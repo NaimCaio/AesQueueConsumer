@@ -13,7 +13,7 @@ namespace AWSQueueProject.Model
     {
         [Key]
         public string filename { get; set; }
-        public string filesize { get; set; }
+        public long filesize { get; set; }
 
         public DateTime lastmodified  { get; set; }
     }

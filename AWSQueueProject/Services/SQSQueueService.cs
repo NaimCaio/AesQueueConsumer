@@ -103,7 +103,7 @@ namespace AWSQueueProject
             var AWSfile = new File()
             {
                 filename = obj.Records[0].s3.Object.key,
-                filesize = obj.Records[0].s3.Object.size,
+                filesize = long.Parse(obj.Records[0].s3.Object.size),
                 lastmodified = DateTime.Parse(obj.Records[0].eventTime)
 
             };
