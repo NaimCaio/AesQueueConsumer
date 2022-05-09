@@ -45,7 +45,7 @@ namespace AWSQueueProject
                 var queueCriationResponse = Task.Run(async () => await sqsClient.CreateQueueAsync(queueRequest)).Result;
                 return queueCriationResponse.QueueUrl;
             }
-            catch (Exception)
+            catch (Exception )
             {
 
                 throw new Exception("Erro ao criar ou conectar a fila");
@@ -76,15 +76,23 @@ namespace AWSQueueProject
                     if (obj.Records != null)
                     {
                         UpdateDabase(obj);
+
                     }
                     counter++;
+                    //Caso queira deletar a mensagem da fila depois de ler ela só precisaria descomentar a linha abaixo
+                    //Fiquei na dúvida se faz parte do objetivo perder as informações das notificações ou não
+                    //DeleteMessage(message, queueUrl, sqsClient);
+
+
 
                 }
                 else
                 {
                     Console.WriteLine("Erro ao acessar fila");
+                    throw new Exception("Erro ao acessar fila");
                 }
                 
+
             }
         }
 
@@ -152,6 +160,16 @@ namespace AWSQueueProject
             }
         }
 
+        private void DeleteMessage(Message obj, string queueUrl, AmazonSQSClient sqsClient)
+        {
+            var deleteRequest = new DeleteMessageRequest()
+            {
+                QueueUrl = queueUrl,
+                ReceiptHandle = obj.ReceiptHandle
+            };
+            sqsClient.DeleteMessageAsync(deleteRequest);
 
+            Console.WriteLine("Mensagem Deletada");
+        }
     }
 }
