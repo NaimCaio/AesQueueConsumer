@@ -14,22 +14,12 @@ using System.Threading.Tasks;
 
 namespace AWSQueueProject
 {
-    public class SQSQueueService
+    public class SQSQueueService: ISQSQueueService
     {
-        private readonly SqlRepository<File> _filesRepository;
-        public SQSQueueService()
+        public readonly IGenericRepository<File> _filesRepository;
+        public SQSQueueService(IGenericRepository<File> filesRepository)
         {
-            //Database connection
-            var connection = Environment.GetEnvironmentVariable("MySqlConnectionString");
-            var optionsBuilder = new DbContextOptionsBuilder<SQLContext>();
-            optionsBuilder.UseMySql(connection, ServerVersion.AutoDetect(connection),
-                options => options.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: System.TimeSpan.FromSeconds(30),
-                    errorNumbersToAdd: null)
-                );
-            var _context = new SQLContext(optionsBuilder.Options);
-            _filesRepository = new SqlRepository<File>(_context);
+            _filesRepository = filesRepository; 
         }
         public  string CreateOrConectQueue( AmazonSQSClient sqsClient, string queueName, string timeout)
         {
@@ -65,13 +55,13 @@ namespace AWSQueueProject
             {
                 Console.WriteLine("Obtendo mensagem da fila");
                 var receivaedMessageResponse = Task.Run(async () => await sqsClient.ReceiveMessageAsync(receiveMessageRquest)).Result;
-
+                
                 if (receivaedMessageResponse.HttpStatusCode== System.Net.HttpStatusCode.OK && receivaedMessageResponse.Messages.Count>0)
                 {
                     Console.WriteLine("Mensagem lida com sucesso");
                     var message = receivaedMessageResponse.Messages[0];
                     var obj = JsonConvert.DeserializeObject<NotificationDTO>(message.Body);
-
+                    
                     //Só atualiza a base para mensagens de notificação
                     if (obj.Records != null)
                     {
@@ -96,7 +86,7 @@ namespace AWSQueueProject
             }
         }
 
-        public static int MessagensInQueue(string queueUrl, AmazonSQSClient sqsClient)
+        public int MessagensInQueue(string queueUrl, AmazonSQSClient sqsClient)
         {
             var messagesQtd = 0;
 
@@ -111,7 +101,7 @@ namespace AWSQueueProject
             return messagesQtd;
         }
 
-        private  void UpdateDabase(NotificationDTO obj)
+        public  void UpdateDabase(NotificationDTO obj)
         {
             var AWSfile = new File()
             {
@@ -160,7 +150,7 @@ namespace AWSQueueProject
             }
         }
 
-        private void DeleteMessage(Message obj, string queueUrl, AmazonSQSClient sqsClient)
+        public void DeleteMessage(Message obj, string queueUrl, AmazonSQSClient sqsClient)
         {
             var deleteRequest = new DeleteMessageRequest()
             {
